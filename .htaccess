@@ -1,3 +1,8 @@
+###
+# Ludovic Riaudel
+# ludovic@riaudel.net
+# https://ludovic.riaudel.net
+##
 
 ## Redirection HTTPS a activer
 # NE https://httpd.apache.org/docs/current/rewrite/flags.html#flag_ne
@@ -8,6 +13,7 @@
 	#RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [NE,L,R=301]
 </IfModule>
 ## END Redirection HTTPS HTTPS
+
 
 ## Compression Gzip
 <IfModule mod_deflate.c>
@@ -34,6 +40,7 @@
 
 </IfModule>
 ## END Compression Gzip
+
 
 ## Expire headers
 <IfModule mod_expires.c>
@@ -81,6 +88,7 @@
 </IfModule>
 ## END Expire headers
 
+
 ## Cache-Control Headers
 <IfModule mod_headers.c>
 
@@ -125,6 +133,7 @@ ServerSignature Off
 	deny from all
 </files>
 
+
 ## Headers - Security
 <IfModule mod_headers.c>
 	
@@ -158,3 +167,4 @@ ServerSignature Off
 
 </IfModule>
 ## END Headers - Security
+
