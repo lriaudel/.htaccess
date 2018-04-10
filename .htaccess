@@ -1,0 +1,160 @@
+
+## Redirection HTTPS a activer
+# NE https://httpd.apache.org/docs/current/rewrite/flags.html#flag_ne
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	#RewriteCond %{HTTP:X-Forwarded-Proto} !https
+	#RewriteCond %{HTTPS} !=on
+	#RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [NE,L,R=301]
+</IfModule>
+## END Redirection HTTPS HTTPS
+
+## Compression Gzip
+<IfModule mod_deflate.c>
+
+	# Active le filtre compression
+	SetOutputFilter DEFLATE
+	
+	# Applique la compression sur les fichiers de type mime défini
+	AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/x-javascript application/x-httpd-php image/svg+xml application/xhtml+xml application/xml application/rss+xml application/atom_xml
+	
+	# Gestion pour les navigateurs incompatibles
+	BrowserMatch ^Mozilla/4 gzip-only-text/html
+	BrowserMatch ^Mozilla/4\.0[678] no-gzip
+	BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+	BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
+
+	# Ne pas mettre en cache si ces fichiers le sont deja
+	SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip
+	
+	# Les proxies doivent donner le bon contenu
+	<IfModule mod_headers.c>
+		Header append Vary User-Agent env=!dont-vary
+	</IfModule>
+
+</IfModule>
+## END Compression Gzip
+
+## Expire headers
+<IfModule mod_expires.c>
+	ExpiresActive On
+	ExpiresDefault 										"access plus 1 month"
+
+	# Media files
+	ExpiresByType audio/ogg								"access plus 1 month"
+	ExpiresByType image/bmp								"access plus 1 month"
+	ExpiresByType image/gif								"access plus 1 month"
+	ExpiresByType image/jpeg							"access plus 1 month"
+	ExpiresByType image/png								"access plus 1 month"
+	ExpiresByType video/mp4								"access plus 1 month"
+	ExpiresByType video/ogg								"access plus 1 month"
+	ExpiresByType video/webm							"access plus 1 month"
+	
+	# Icon files
+	AddType image/x-icon .ico
+	ExpiresByType image/ico 							"access plus 1 month"
+	ExpiresByType image/icon 							"access plus 1 month"
+	ExpiresByType image/x-icon 							"access plus 1 month"
+	
+	# Text files
+	ExpiresByType text/css 								"access plus 1 month"
+	ExpiresByType text/javascript 						"access plus 1 month"
+	ExpiresByType text/html 							"access plus 7200 seconds"
+	
+	# Application files
+	ExpiresByType application/xhtml+xml 				"access plus 7200 seconds"
+	ExpiresByType application/javascript 				"access plus 1 month"
+	ExpiresByType application/x-javascript				"access plus 1 month"
+	ExpiresByType application/x-shockwave-flash 		"access plus 1 month"
+
+	# Web fonts
+	AddType application/font-woff2 .woff2
+	ExpiresByType application/font-woff					"access plus 1 month"
+	ExpiresByType application/font-woff2				"access plus 1 month"
+	ExpiresByType application/vnd.ms-fontobject			"access plus 1 month"
+	ExpiresByType application/x-font-ttf				"access plus 1 month"
+	ExpiresByType font/opentype							"access plus 1 month"
+	ExpiresByType image/svg+xml							"access plus 1 month"
+	ExpiresByType application/x-font-opentype 			"access plus 1 month"
+	ExpiresByType application/x-font-woff 				"access plus 1 month"
+
+</IfModule>
+## END Expire headers
+
+## Cache-Control Headers
+<IfModule mod_headers.c>
+
+	# KILL THEM ETAGS
+	Header unset ETag
+	FileETag none
+	
+	<FilesMatch "\.(ico|jpe?g|png|gif|swf|css|gz)$">
+		Header set Cache-Control "max-age=2592000, public"
+	</FilesMatch>
+	
+	<FilesMatch "\.(js)$">
+		Header set Cache-Control "max-age=2592000, private"
+	</FilesMatch>
+	
+	<filesMatch "\.(html|htm)$">
+		Header set Cache-Control "max-age=7200, public"
+	</filesMatch>
+	
+	# Disable caching for scripts and other dynamic files
+	<FilesMatch "\.(pl|php|cgi|spl|scgi|fcgi)$">
+		Header unset Cache-Control
+	</FilesMatch>
+	
+</IfModule>
+## END Cache-Control Headers
+
+# Protection de la lecture des repertoires
+<IfModule mod_autoindex.c>
+	Options -Indexes
+</IfModule>
+
+# Encodage des caractères
+AddDefaultCharset utf-8
+
+# Masquer les informations du serveur
+ServerSignature Off
+
+# Protege le fichier htaccess
+<files .htaccess>
+	order allow,deny
+	deny from all
+</files>
+
+## Headers - Security
+<IfModule mod_headers.c>
+	
+	# Secure cookie with HttpOnly and Secure flag in Apache
+	Header set Set-Cookie HttpOnly;Secure
+	
+	# Content-Security-Policy
+	# Commenté car il doit être fait au cas par cas - https://content-security-policy.com/
+	# Header set Content-Security-Policy "default-src https: 'unsafe-inline' 'unsafe-eval'"
+
+	# HSTS - Oblige le navigateur a passer en HTTPS
+	Header always set Strict-Transport-Security "max-age=16070400; includeSubDomains"
+
+	# Referrer Policy
+	Header always set Referrer-Policy: "strict-origin-when-cross-origin"
+
+	# Access-Control-Allow-Origin
+	Header set Access-Control-Allow-Origin "%{HTTP_ORIGIN}e" env=HTTP_ORIGIN
+
+	# Clickjacking
+	Header always set X-FRAME-OPTIONS "SAMEORIGIN"
+
+	# XSS protection
+	Header always set X-XSS-Protection "1; mode=block"
+
+	# Nosniff (dareboost)
+	Header always set X-Content-Type-Options "nosniff"
+	
+	# Masque la version de php
+	Header unset X-Powered-By
+
+</IfModule>
+## END Headers - Security
