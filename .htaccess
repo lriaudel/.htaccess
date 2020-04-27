@@ -154,6 +154,7 @@ ServerSignature Off
 	Header set Access-Control-Allow-Origin "%{HTTP_ORIGIN}e" env=HTTP_ORIGIN
 	
 	# Or for multiple domaine
+	# source : https://stackoverflow.com/questions/1653308/access-control-allow-origin-multiple-origin-domains/12414239#12414239
 	# SetEnvIf Origin "http(s)?://(www\.)?(domain1.ext|domain2.ext)$" AccessControlAllowOrigin=$0$1
 	# Header add Access-Control-Allow-Origin %{AccessControlAllowOrigin}e env=AccessControlAllowOrigin
 	# Header set Access-Control-Allow-Credentials true
