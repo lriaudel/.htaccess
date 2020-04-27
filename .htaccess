@@ -152,6 +152,11 @@ ServerSignature Off
 
 	# Access-Control-Allow-Origin
 	Header set Access-Control-Allow-Origin "%{HTTP_ORIGIN}e" env=HTTP_ORIGIN
+	
+	# Or for multiple domaine
+	# SetEnvIf Origin "http(s)?://(www\.)?(domain1.ext|domain2.ext)$" AccessControlAllowOrigin=$0$1
+	# Header add Access-Control-Allow-Origin %{AccessControlAllowOrigin}e env=AccessControlAllowOrigin
+	# Header set Access-Control-Allow-Credentials true
 
 	# Clickjacking
 	Header always set X-FRAME-OPTIONS "SAMEORIGIN"
